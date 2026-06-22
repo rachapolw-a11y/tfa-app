@@ -1,117 +1,151 @@
-import { useState } from 'react'
-import { storage } from '../lib/storage'
+import { useState, useEffect, useMemo } from 'react'
+import { subscribeTo, addSession, updateSession, deleteSession } from '../lib/storage'
 import Modal from '../components/Modal'
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, PlusCircle } from 'lucide-react'
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, PlusCircle, Dumbbell } from 'lucide-react'
 
 const AGE_GROUPS = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18']
-const COERVER = ['Ball Mastery', 'Running with the Ball', '1v1 Moves', 'Finishing', 'Speed', 'Heading', 'Group Moves', 'Team Tactics']
 
-const EMPTY_SESSION = {
-  date: '',
-  title: '',
-  ageGroup: 'U10',
-  drills: [],
-  coachNotes: '',
+const AGE_COLOR = {
+  U8:  '#c084fc',
+  U10: '#38bdf8',
+  U12: '#34d399',
+  U14: '#fb923c',
+  U16: '#f87171',
+  U18: '#f1b813',
 }
+const COERVER    = ['Ball Mastery', 'Running with the Ball', '1v1 Moves', 'Finishing', 'Speed', 'Heading', 'Group Moves', 'Team Tactics']
 
-const EMPTY_DRILL = { name: '', category: 'Ball Mastery', duration: 10, notes: '' }
+const EMPTY_SESSION = { date: '', title: '', ageGroup: 'U10', drills: [], coachNotes: '' }
+const EMPTY_DRILL   = { name: '', category: 'Ball Mastery', duration: 10, notes: '' }
 
-export default function Training() {
-  const [sessions, setSessions] = useState(() => storage.getSessions())
-  const [players] = useState(() => storage.getPlayers())
-  const [showModal, setShowModal] = useState(false)
-  const [editing, setEditing] = useState(null)
-  const [form, setForm] = useState(EMPTY_SESSION)
-  const [attendanceIds, setAttendanceIds] = useState([])
-  const [newDrill, setNewDrill] = useState(EMPTY_DRILL)
-  const [showDrillForm, setShowDrillForm] = useState(false)
-  const [expanded, setExpanded] = useState(null)
+export default function Training({ role = 'parent' }) {
+  const isCoach = role === 'coach'
 
-  function persist(data) {
-    storage.saveSessions(data)
-    setSessions(data)
-  }
+  const [sessions,       setSessions]       = useState([])
+  const [players,        setPlayers]        = useState([])
+  const [loading,        setLoading]        = useState(true)
+  const [filterGroup,    setFilterGroup]    = useState('all')
+  const [showModal,      setShowModal]      = useState(false)
+  const [editing,        setEditing]        = useState(null)
+  const [form,           setForm]           = useState(EMPTY_SESSION)
+  const [attendanceIds,  setAttendanceIds]  = useState([])
+  const [newDrill,       setNewDrill]       = useState(EMPTY_DRILL)
+  const [showDrillForm,  setShowDrillForm]  = useState(false)
+  const [expanded,       setExpanded]       = useState(null)
+
+  useEffect(() => {
+    const unsubPlayers  = subscribeTo('players',  setPlayers)
+    const unsubSessions = subscribeTo('sessions', data => { setSessions(data); setLoading(false) })
+    return () => { unsubPlayers(); unsubSessions() }
+  }, [])
+
+  // Drill library: unique drills from all sessions, most-recently-used first
+  const drillSuggestions = useMemo(() => {
+    const seen   = new Set()
+    const result = []
+    ;[...sessions]
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .forEach(s => {
+        ;(s.drills || []).forEach(d => {
+          if (d.name && !seen.has(d.name.toLowerCase())) {
+            seen.add(d.name.toLowerCase())
+            result.push({ name: d.name, category: d.category })
+          }
+        })
+      })
+    return result.slice(0, 12)
+  }, [sessions])
 
   function today() { return new Date().toISOString().split('T')[0] }
 
   function openAdd() {
-    setEditing(null)
-    setForm({ ...EMPTY_SESSION, date: today() })
-    setAttendanceIds([])
-    setNewDrill(EMPTY_DRILL)
-    setShowDrillForm(false)
-    setShowModal(true)
+    setEditing(null); setForm({ ...EMPTY_SESSION, date: today() })
+    setAttendanceIds([]); setNewDrill(EMPTY_DRILL); setShowDrillForm(false); setShowModal(true)
   }
-
   function openEdit(s) {
-    setEditing(s.id)
-    setForm({ ...s })
-    setAttendanceIds(s.attendanceIds || [])
-    setNewDrill(EMPTY_DRILL)
-    setShowDrillForm(false)
-    setShowModal(true)
+    setEditing(s.id); setForm({ ...s }); setAttendanceIds(s.attendanceIds || [])
+    setNewDrill(EMPTY_DRILL); setShowDrillForm(false); setShowModal(true)
   }
-
   function addDrill() {
     if (!newDrill.name.trim()) return
     setForm(f => ({ ...f, drills: [...f.drills, { ...newDrill, id: crypto.randomUUID() }] }))
-    setNewDrill(EMPTY_DRILL)
-    setShowDrillForm(false)
+    setNewDrill(EMPTY_DRILL); setShowDrillForm(false)
   }
-
-  function removeDrill(id) {
-    setForm(f => ({ ...f, drills: f.drills.filter(d => d.id !== id) }))
-  }
-
-  function toggleAttend(id) {
-    setAttendanceIds(ids => ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id])
-  }
-
-  function submit(e) {
+  function removeDrill(id) { setForm(f => ({ ...f, drills: f.drills.filter(d => d.id !== id) })) }
+  function toggleAttend(id) { setAttendanceIds(ids => ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id]) }
+  async function submit(e) {
     e.preventDefault()
-    const session = { ...form, attendanceIds, id: editing || crypto.randomUUID() }
-    persist(editing ? sessions.map(s => s.id === editing ? session : s) : [session, ...sessions])
+    const session = { ...form, attendanceIds }
+    editing ? await updateSession(editing, session) : await addSession(session)
     setShowModal(false)
   }
-
-  function remove(id) {
-    if (window.confirm('Delete this session?')) persist(sessions.filter(s => s.id !== id))
+  async function remove(id) {
+    if (window.confirm('Delete this session?')) await deleteSession(id)
   }
-
   function field(key, val) { setForm(f => ({ ...f, [key]: val })) }
   function drillField(key, val) { setNewDrill(d => ({ ...d, [key]: val })) }
 
-  const sorted = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date))
+  if (loading) return (
+    <div className="text-center py-20 text-cream/40">
+      <p className="text-lg font-medium">Loading sessions...</p>
+    </div>
+  )
+
+  const sorted  = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date))
+  const visible = filterGroup === 'all' ? sorted : sorted.filter(s => s.ageGroup === filterGroup)
   const squadPlayers = players.filter(p => p.active && (!form.ageGroup || p.ageGroup === form.ageGroup))
+
+  const groupCounts = Object.fromEntries(
+    AGE_GROUPS.map(g => [g, sessions.filter(s => s.ageGroup === g).length])
+  )
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
+      {/* Header + filter */}
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-cream">Training Sessions</h2>
-        <button onClick={openAdd} className="flex items-center gap-2 bg-gold text-navy px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gold-light transition-colors">
-          <Plus size={16} /> New Session
-        </button>
+        {/* New Session — coaches only */}
+        {isCoach && (
+          <button onClick={openAdd} className="flex items-center gap-2 bg-gold text-navy px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gold-light transition-colors">
+            <Plus size={16} /> New Session
+          </button>
+        )}
       </div>
 
-      {sorted.length === 0 && (
-        <div className="text-center py-20 text-cream/40">
-          <p className="text-lg font-medium">No sessions yet</p>
-          <p className="text-sm mt-1">Log your first training session.</p>
+      {sessions.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-5">
+          <FilterChip label={`All (${sessions.length})`} active={filterGroup === 'all'} onClick={() => setFilterGroup('all')} />
+          {AGE_GROUPS.map(g => groupCounts[g] > 0 ? (
+            <FilterChip key={g} label={`${g} (${groupCounts[g]})`} active={filterGroup === g} onClick={() => setFilterGroup(g)} />
+          ) : null)}
+        </div>
+      )}
+
+      {visible.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 text-cream/30 border border-dashed border-white/10 rounded-2xl">
+          <Dumbbell size={36} className="mb-3 text-cream/15" />
+          <p className="font-condensed font-semibold text-lg tracking-wide">
+            {sessions.length === 0 ? 'No sessions logged yet' : `No ${filterGroup} sessions`}
+          </p>
+          {sessions.length === 0 && isCoach && (
+            <p className="text-sm mt-1 text-cream/20">Tap <span className="text-gold/50">+ New Session</span> to log your first training.</p>
+          )}
         </div>
       )}
 
       <div className="space-y-3">
-        {sorted.map(s => {
-          const open = expanded === s.id
+        {visible.map(s => {
+          const open     = expanded === s.id
           const totalMin = (s.drills || []).reduce((n, d) => n + Number(d.duration), 0)
+          const accent   = AGE_COLOR[s.ageGroup] || '#f1b813'
           return (
-            <div key={s.id} className="bg-navy-mid rounded-xl border border-white/10 overflow-hidden hover:border-gold/20 transition-colors">
-              <div
-                className="flex items-center gap-3 p-4 cursor-pointer hover:bg-white/5 transition-colors"
-                onClick={() => setExpanded(open ? null : s.id)}
-              >
+            <div key={s.id} className="bg-navy-mid rounded-xl border border-white/10 overflow-hidden hover:border-gold/20 transition-colors flex">
+              {/* Age group accent stripe */}
+              <div className="w-1 shrink-0 rounded-l-xl" style={{ backgroundColor: accent }} />
+              <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 p-4 cursor-pointer hover:bg-white/5 transition-colors" onClick={() => setExpanded(open ? null : s.id)}>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-cream truncate">{s.title || 'Untitled Session'}</p>
+                  <p className="font-condensed font-semibold text-base tracking-wide text-cream truncate">{s.title || 'Untitled Session'}</p>
                   <p className="text-sm text-cream/40 mt-0.5">
                     {s.date}
                     {s.ageGroup && ` · ${s.ageGroup}`}
@@ -121,8 +155,13 @@ export default function Training() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <button onClick={e => { e.stopPropagation(); openEdit(s) }} className="p-1.5 text-cream/20 hover:text-gold rounded transition-colors"><Pencil size={14} /></button>
-                  <button onClick={e => { e.stopPropagation(); remove(s.id) }} className="p-1.5 text-cream/20 hover:text-red-400 rounded transition-colors"><Trash2 size={14} /></button>
+                  {/* Edit / Delete — coaches only */}
+                  {isCoach && (
+                    <>
+                      <button onClick={e => { e.stopPropagation(); openEdit(s) }} className="p-1.5 text-cream/20 hover:text-gold rounded transition-colors"><Pencil size={14} /></button>
+                      <button onClick={e => { e.stopPropagation(); remove(s.id) }} className="p-1.5 text-cream/20 hover:text-red-400 rounded transition-colors"><Trash2 size={14} /></button>
+                    </>
+                  )}
                   {open ? <ChevronUp size={16} className="text-cream/20 ml-1" /> : <ChevronDown size={16} className="text-cream/20 ml-1" />}
                 </div>
               </div>
@@ -146,7 +185,6 @@ export default function Training() {
                       </div>
                     </div>
                   )}
-
                   {s.attendanceIds?.length > 0 && (
                     <div>
                       <p className="text-xs font-bold text-cream/30 uppercase tracking-wide mb-2">Present ({s.attendanceIds.length})</p>
@@ -160,7 +198,6 @@ export default function Training() {
                       </div>
                     </div>
                   )}
-
                   {s.coachNotes && (
                     <div>
                       <p className="text-xs font-bold text-cream/30 uppercase tracking-wide mb-1">Notes</p>
@@ -169,12 +206,13 @@ export default function Training() {
                   )}
                 </div>
               )}
+              </div>
             </div>
           )
         })}
       </div>
 
-      {showModal && (
+      {showModal && isCoach && (
         <Modal title={editing ? 'Edit Session' : 'New Session'} onClose={() => setShowModal(false)}>
           <form onSubmit={submit} className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
@@ -217,6 +255,24 @@ export default function Training() {
 
               {showDrillForm && (
                 <div className="border border-gold/20 bg-gold/5 rounded-lg p-3 space-y-2">
+                  {drillSuggestions.length > 0 && (
+                    <div>
+                      <p className="text-xs text-cream/30 mb-1.5">Recent drills — tap to fill:</p>
+                      <div className="flex flex-wrap gap-1.5 mb-2">
+                        {drillSuggestions.map(d => (
+                          <button
+                            key={d.name}
+                            type="button"
+                            onClick={() => setNewDrill(nd => ({ ...nd, name: d.name, category: d.category }))}
+                            className="text-xs bg-white/5 border border-white/10 px-2.5 py-1 rounded-full text-cream/60 hover:border-gold/40 hover:text-cream transition-colors"
+                          >
+                            {d.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <input className="input" placeholder="Drill name *" value={newDrill.name} onChange={e => drillField('name', e.target.value)} />
                   <div className="grid grid-cols-2 gap-2">
                     <select className="input" value={newDrill.category} onChange={e => drillField('category', e.target.value)}>
@@ -240,12 +296,7 @@ export default function Training() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-44 overflow-y-auto bg-navy rounded-lg p-3">
                   {squadPlayers.map(p => (
                     <label key={p.id} className="flex items-center gap-2 text-sm cursor-pointer select-none text-cream/70">
-                      <input
-                        type="checkbox"
-                        checked={attendanceIds.includes(p.id)}
-                        onChange={() => toggleAttend(p.id)}
-                        className="w-4 h-4 accent-gold"
-                      />
+                      <input type="checkbox" checked={attendanceIds.includes(p.id)} onChange={() => toggleAttend(p.id)} className="w-4 h-4 accent-gold" />
                       <span className="truncate">{p.nickname || p.name}</span>
                     </label>
                   ))}
@@ -266,5 +317,18 @@ export default function Training() {
         </Modal>
       )}
     </div>
+  )
+}
+
+function FilterChip({ label, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+        active ? 'bg-gold text-navy border-gold font-semibold' : 'border-white/20 text-cream/60 hover:border-gold/50 hover:text-cream'
+      }`}
+    >
+      {label}
+    </button>
   )
 }

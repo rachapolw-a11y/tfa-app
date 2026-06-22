@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Players ──────────────────────────────────────────────────────────────
+    match /players/{playerId} {
+      allow read: if true;
+      allow create: if validPlayer(request.resource.data);
+      // Once a player has a parent editCode, it cannot be changed or removed
+      // (anti-hijack). Legacy players without one may have one set once.
+      allow update: if validPlayer(request.resource.data)
+        && (!resource.data.keys().hasAny(['editCode'])
+            || request.resource.data.editCode == resource.data.editCode);
+      allow delete: if true;
+    }
+
+    // ── Sessions ─────────────────────────────────────────────────────────────
+    match /sessions/{sessionId} {
+      allow read: if true;
+      allow create: if validSession(request.resource.data);
+      allow update: if validSession(request.resource.data);
+      allow delete: if true;
+    }
+
+    // ── Evaluations ──────────────────────────────────────────────────────────
+    // Immutable once created — app only deletes, never edits
+    match /evaluations/{evalId} {
+      allow read:   if true;
+      allow create: if validEvaluation(request.resource.data);
+      allow update: if validEvaluation(request.resource.data);
+      allow delete: if true;
+    }
+
+    // ── Notices (coach announcements) ────────────────────────────────────────
+    match /notices/{noticeId} {
+      allow read: if true;
+      allow create: if validNotice(request.resource.data);
+      allow delete: if true;
+    }
+
+    // ── Block everything else ────────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ── Validation functions ─────────────────────────────────────────────────
+
+    function validPlayer(data) {
+      return data.keys().hasAll(['name', 'ageGroup', 'position', 'active'])
+        && data.name    is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.ageGroup in ['U8', 'U10', 'U12', 'U14', 'U16', 'U18']
+        && data.position in ['GK', 'DEF', 'MID', 'FWD']
+        && data.active  is bool
+        && (!data.keys().hasAny(['photoURL']) || data.photoURL is string)
+        && (!data.keys().hasAny(['editCode']) || data.editCode is string);
+    }
+
+    function validSession(data) {
+      return data.keys().hasAll(['date', 'ageGroup'])
+        && data.date     is string && data.date.size() == 10   // YYYY-MM-DD
+        && data.ageGroup in ['U8', 'U10', 'U12', 'U14', 'U16', 'U18'];
+    }
+
+    function validNotice(data) {
+      return data.keys().hasAll(['message', 'date'])
+        && data.message is string && data.message.size() > 0 && data.message.size() <= 280
+        && data.date    is string && data.date.size() == 10;
+    }
+
+    function validEvaluation(data) {
+      return data.keys().hasAll(['playerId', 'date', 'skills'])
+        && data.playerId is string && data.playerId.size() > 0
+        && data.date     is string && data.date.size() == 10
+        && data.skills   is map;
+    }
+  }
+}

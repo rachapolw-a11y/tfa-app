@@ -1,12 +1,175 @@
+@font-face {
+  font-family: 'Spurs';
+  src: url('./assets/spurs.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spurs';
+  src: url('./assets/spurs.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spurs';
+  src: url('./assets/spurs.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spurs';
+  src: url('./assets/spurs.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spurs';
+  src: url('./assets/spurs.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spurs';
+  src: url('./assets/spurs.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ============================================================
+   TFA Design System — CSS custom properties
+   Dark theme (coach app) by default; .theme-light for portal.
+   ============================================================ */
+:root {
+  /* Brand base */
+  --navy:        #070f1e;
+  --navy-mid:    #101c33;
+  --navy-soft:   #1a2942;
+  --navy-line:   #25375a;
+  --gold:        #f1b813;
+  --gold-light:  #f7cd54;
+  --gold-dark:   #c8960a;
+  --cream:       #f5f0e8;
+  --cream-dark:  #e7ddcc;
+  --cream-line:  #d8ccb6;
+  --white:       #ffffff;
+  --ink:         #0a1322;
+
+  /* Lead-funnel status */
+  --status-new:        #7286a0;
+  --status-trial:      #3b9ae1;
+  --status-attended:   #8b6fc9;
+  --status-offer:      #f1b813;
+  --status-paid:       #2ec18d;
+  --status-enrolled:   #1aa769;
+
+  /* Pitch positions */
+  --pos-gk:  #e0a92e;
+  --pos-def: #3b9ae1;
+  --pos-mid: #2ec18d;
+  --pos-fwd: #e25563;
+
+  /* Feedback */
+  --success: #2ec18d;
+  --warning: #f1b813;
+  --danger:  #e2493f;
+  --info:    #3b9ae1;
+
+  /* Skill rating scale 0–10 */
+  --rating-low:   #e2493f;  /* 0–3  red    */
+  --rating-mid:   #f97316;  /* 4–6  orange */
+  --rating-high:  #06b6d4;  /* 7–8  cyan   */
+  --rating-elite: #f1b813;  /* 9–10 gold   */
+
+  /* Semantic — dark theme (default) */
+  --bg-app:         var(--navy);
+  --surface:        var(--navy-mid);
+  --surface-2:      var(--navy-soft);
+  --border:         var(--navy-line);
+  --border-strong:  #34507e;
+  --text:           var(--cream);
+  --text-strong:    var(--white);
+  --text-muted:     #8fa1bd;
+  --text-faint:     #5d6f8c;
+  --accent:         var(--gold);
+  --accent-hover:   var(--gold-light);
+  --on-accent:      var(--navy);
+
+  /* Effects */
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   22px;
+  --radius-pill: 999px;
+  --shadow-sm:   0 1px 2px rgba(3,8,18,0.30);
+  --shadow-md:   0 6px 18px rgba(3,8,18,0.38);
+  --shadow-card: 0 2px 10px rgba(3,8,18,0.28);
+  --glow-gold:   0 4px 18px rgba(241,184,19,0.35);
+  --dur-fast: 120ms;
+  --dur:      200ms;
+  --dur-slow: 320ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Light theme — parent portal */
+.theme-light {
+  --bg-app:        var(--cream);
+  --surface:       var(--white);
+  --surface-2:     var(--cream);
+  --border:        var(--cream-line);
+  --border-strong: var(--cream-dark);
+  --text:          var(--ink);
+  --text-strong:   var(--navy);
+  --text-muted:    #6b7384;
+}
+
+@layer base {
+  body {
+    background-color: #070f1e;
+    background-image:
+      radial-gradient(ellipse 70% 45% at 15% 0%, rgba(241,184,19,0.07) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 40% at 85% 100%, rgba(56,189,248,0.05) 0%, transparent 60%),
+      linear-gradient(rgba(255,255,255,0.007) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.007) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+    background-attachment: fixed;
+    font-family: 'Barlow', system-ui, sans-serif;
+  }
+}
 
 @layer components {
   .input {
     @apply w-full border border-white/20 bg-navy-light text-cream rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-shadow placeholder:text-cream/30;
   }
   .label {
-    @apply block text-sm font-medium text-cream/70 mb-1;
+    @apply block text-sm font-condensed font-semibold text-cream/60 mb-1 tracking-wide uppercase text-xs;
+  }
+  /* Design-system typography utilities */
+  .tfa-display {
+    font-family: 'Spurs', 'Barlow Condensed', system-ui, sans-serif;
+    font-weight: 700;
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+  .tfa-label {
+    font-family: 'Barlow Condensed', system-ui, sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 }
