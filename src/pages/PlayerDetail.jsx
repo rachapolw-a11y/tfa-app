@@ -35,6 +35,7 @@ import {
   playerEvals as playerEvalsAsc,
   ovrTrend,
   calcAge,
+  ovrBandForGroup,
   SKILL_ORDER,
   SKILL_LABELS,
 } from '../lib/ratings'
@@ -85,6 +86,14 @@ export default function PlayerDetail({
   const trend = useMemo(
     () => (player ? ovrTrend(player.id, evaluations) : []),
     [player, evaluations],
+  )
+
+  // Age-group-relative band, matching Squad's roster list and EvaluateScreen.
+  // Previously this badge was hardcoded tone="gold", so the same player could
+  // read red on the roster and gold on their own profile one tap later.
+  const ovrBand = useMemo(
+    () => (player ? ovrBandForGroup(currentOvr, player.ageGroup, players, evaluations) : null),
+    [currentOvr, player, players, evaluations],
   )
 
   if (!player) {
@@ -154,7 +163,7 @@ export default function PlayerDetail({
                   glow
                 />
                 {latest ? (
-                  <ScoreBadge value={currentOvr} tone="gold" size="lg" />
+                  <ScoreBadge value={currentOvr} tone="rated" size="lg" band={ovrBand} />
                 ) : null}
               </div>
 

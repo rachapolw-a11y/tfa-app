@@ -42,6 +42,7 @@ const ROLE_TABS = {
     { id: 'today',    label: 'Today',    Icon: Home },
     { id: 'squad',    label: 'Squad',    Icon: Users },
     { id: 'evaluate', label: 'Evaluate', Icon: ClipboardList },
+    { id: 'leads',    label: 'Leads',    Icon: Megaphone },
     { id: 'more',     label: 'More',     Icon: MoreHorizontal },
   ],
   admin: [
@@ -145,6 +146,10 @@ function Shell({ role, onSwitchRole }) {
       if (tab === 'today')    return <Today onTabSwitch={setTab} />
       if (tab === 'squad')    return <Squad role="coach" onPlayerOpen={openPlayer} />
       if (tab === 'evaluate') return <Stats role="coach" onEvaluatePlayer={evaluatePlayer} />
+      // Today's "Pipeline ›" card and its "Follow up ·" rows switch to this
+      // tab; without the branch they fell through to null — a blank screen
+      // with no nav item highlighted and no way back.
+      if (tab === 'leads')    return <Leads role="coach" />
       if (tab === 'more')     return <More  role="coach" isCoach onCoachToggle={onSwitchRole} />
     }
     if (role === 'admin') {

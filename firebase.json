@@ -2,7 +2,23 @@
   "hosting": {
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    "rewrites": [{ "source": "**", "destination": "/index.html" }],
+    "headers": [
+      {
+        "comment": "Vite fingerprints these, so they can be cached forever.",
+        "source": "/assets/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        "comment": "Everything else (above all index.html) must revalidate — a stale index.html pins users to the previous build's hashed assets. Firebase's default max-age=3600 made each deploy invisible for up to an hour.",
+        "source": "**",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
+        ]
+      }
+    ]
   },
   "firestore": {
     "rules": "firestore.rules",
