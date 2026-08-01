@@ -30,9 +30,12 @@ const DIMS = {
   xl: { box: 96, num: 56, lbl: 12 },
 }
 
-export function ScoreBadge({ value = 0, label = 'OVR', size = 'lg', tone = 'gold', style = {} }) {
+export function ScoreBadge({ value = 0, label = 'OVR', size = 'lg', tone = 'gold', band, style = {} }) {
   const d = DIMS[size] ?? DIMS.lg
-  const c = ratingBand(value)
+  // `band` (elite/high/mid/low) overrides the raw-value band — used when a
+  // caller has ranked the player against age-group peers instead of the
+  // flat 0–99 scale. Falls back to the absolute band when not provided.
+  const c = band ? BAND_HEX[band] : ratingBand(value)
 
   const tones = {
     gold: {

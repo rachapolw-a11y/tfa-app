@@ -17,9 +17,10 @@ import { skillsToOvr, topSkills } from '../../lib/ratings'
  * Props:
  *   player      — { id, name, position, ageGroup, jersey?, photoURL? }
  *   evaluation  — { skills } | null
+ *   band        — optional age-group-relative rating band (see ovrBandForGroup)
  *   onClick     — click handler
  */
-export function PlayerCard({ player, evaluation, onClick }) {
+export function PlayerCard({ player, evaluation, band, onClick }) {
   const skills = evaluation?.skills
   const ovr = skills ? skillsToOvr(skills) : 0
   const top = skills ? topSkills(skills, 3) : []
@@ -52,7 +53,7 @@ export function PlayerCard({ player, evaluation, onClick }) {
             </span>
           </div>
         </div>
-        {skills ? <ScoreBadge value={ovr} tone="rated" size="md" /> : null}
+        {skills ? <ScoreBadge value={ovr} tone="rated" size="md" band={band} /> : null}
       </div>
 
       {/* Divider + stats */}

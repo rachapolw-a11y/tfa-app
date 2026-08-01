@@ -66,7 +66,7 @@
   --text:           var(--cream);
   --text-strong:    var(--white);
   --text-muted:     #8fa1bd;
-  --text-faint:     #5d6f8c;
+  --text-faint:     #7688ab;
   --accent:         var(--gold);
   --accent-hover:   var(--gold-light);
   --on-accent:      var(--navy);
@@ -196,6 +196,8 @@
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    mask-image: linear-gradient(to right, black calc(100% - 28px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 28px), transparent 100%);
   }
   .tfa-scroll-x::-webkit-scrollbar {
     display: none;

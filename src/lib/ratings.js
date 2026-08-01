@@ -205,6 +205,34 @@ export function ovrBandColor(value) {
 }
 
 /**
+ * Rating band for a player's OVR relative to their own age group, rather
+ * than the flat 0–99 scale. Young age groups naturally cluster at low
+ * absolute OVRs, so banding on the raw value paints most youth players
+ * (including a squad's own top performer) red/"low" — this ranks a
+ * player against active peers in the same ageGroup instead.
+ * Returns 'low' | 'mid' | 'high' | 'elite', or null when there are too
+ * few rated peers (<4) for a percentile to be meaningful — callers
+ * should fall back to the absolute band in that case.
+ */
+export function ovrBandForGroup(ovr, ageGroup, players, evaluations) {
+  const peerOvrs = players
+    .filter(p => p.active !== false && p.ageGroup === ageGroup)
+    .map(p => {
+      const ev = latestEval(p.id, evaluations)
+      return ev ? skillsToOvr(ev.skills) : null
+    })
+    .filter(v => v !== null)
+
+  if (peerOvrs.length < 4) return null
+
+  const percentile = peerOvrs.filter(v => v <= ovr).length / peerOvrs.length
+  if (percentile >= 0.85) return 'elite'
+  if (percentile >= 0.5)  return 'high'
+  if (percentile >= 0.15) return 'mid'
+  return 'low'
+}
+
+/**
  * Pitch-position color (GK/DEF/MID/FWD). Returns a CSS variable.
  */
 export function positionColor(position) {

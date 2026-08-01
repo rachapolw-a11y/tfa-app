@@ -19,6 +19,7 @@ import {
   topSkills,
   squadAverages,
   latestEval,
+  ovrBandForGroup,
 } from '../lib/ratings'
 
 const AGE_GROUPS = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18']
@@ -80,8 +81,19 @@ export default function Squad({ role = 'parent', onPlayerOpen }) {
     return [...list].sort((a, b) => (ovrMap[b.id] ?? 0) - (ovrMap[a.id] ?? 0))
   }, [activePlayers, ageFilter, search, ovrMap])
 
-  // Summary tile numbers
-  const { avgOvr, topOvr, evalsDue: evalsNeeded } = squadAverages(players, evaluations, ageFilter)
+  // Summary tile numbers — all four tiles scoped to the current age filter.
+  const { size: squadSize, avgOvr, topOvr, evalsDue: evalsNeeded } = squadAverages(players, evaluations, ageFilter)
+
+  // Age-group-relative rating band per visible player (see ovrBandForGroup) —
+  // ranks against active peers in the same ageGroup instead of the flat
+  // 0–99 scale, so a squad's own top-rated young player doesn't render red.
+  const bandMap = useMemo(() => {
+    const map = {}
+    for (const p of visible) {
+      map[p.id] = ovrBandForGroup(ovrMap[p.id] ?? 0, p.ageGroup, players, evaluations)
+    }
+    return map
+  }, [visible, ovrMap, players, evaluations])
 
   // Featured: manual flag wins; otherwise fall back to top-OVR in current view.
   // (Per README "Locked product decisions": one featured per squad via `featured: true`.)
@@ -168,7 +180,7 @@ export default function Squad({ role = 'parent', onPlayerOpen }) {
 
       {/* ── Summary tiles ── 2 cols mobile / 4 cols ≥md (README §11) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 px-4 md:px-6 pt-4">
-        <SummaryTile label="Squad size"  value={activePlayers.length} />
+        <SummaryTile label="Squad size"  value={squadSize} />
         <SummaryTile label="Average OVR" value={avgOvr || 'N/A'} accent="var(--gold)" />
         <SummaryTile label="Top rated"   value={topOvr || 'N/A'} />
         <SummaryTile
@@ -295,6 +307,7 @@ export default function Squad({ role = 'parent', onPlayerOpen }) {
                 key={p.id}
                 player={p}
                 evaluation={latestEvalMap[p.id]}
+                band={bandMap[p.id]}
                 onClick={() => onPlayerOpen(p.id)}
               />
             ))}

@@ -97,11 +97,20 @@ export default function Today({ onTabSwitch }) {
           {dateLabel} · Match week
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 13, marginTop: 8 }}>
-          <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 96, lineHeight: 0.6, color: 'var(--gold)' }}>
+          <div style={{
+            fontFamily: DISPLAY, fontWeight: 700,
+            fontSize: weekSessions.length > 0 ? 96 : 56, lineHeight: 0.6,
+            color: weekSessions.length > 0 ? 'var(--gold)' : 'var(--text-faint)',
+          }}>
             {weekSessions.length}
           </div>
-          <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 22, lineHeight: 0.92, textTransform: 'uppercase', color: 'var(--cream)', paddingBottom: 5 }}>
-            Sessions<br />this week
+          <div style={{
+            fontFamily: DISPLAY, fontWeight: 700, fontSize: 22, lineHeight: 0.92,
+            textTransform: 'uppercase',
+            color: weekSessions.length > 0 ? 'var(--cream)' : 'var(--text-muted)',
+            paddingBottom: 5,
+          }}>
+            {weekSessions.length > 0 ? <>Sessions<br />this week</> : <>No sessions<br />this week</>}
           </div>
         </div>
         <div style={{ fontFamily: CONDENSED, fontWeight: 500, fontSize: 12.5, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-muted)', marginTop: 13 }}>

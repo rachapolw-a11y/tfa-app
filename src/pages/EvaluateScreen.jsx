@@ -20,6 +20,7 @@ import {
   skillsToOvr,
   playerEvals as playerEvalsAsc,
   bandColor,
+  ovrBandForGroup,
   SKILL_ORDER,
   SKILL_LABELS,
 } from '../lib/ratings'
@@ -159,6 +160,12 @@ export default function EvaluateScreen({ playerId, players, evaluations, onBack,
   const [savedFromOvr, setSavedFromOvr] = useState(null)
 
   const ovr = useMemo(() => skillsToOvr(skills), [skills])
+  // Same age-group-relative band as the Squad list, so the live preview
+  // during evaluation matches how this OVR will render on the roster.
+  const ovrBand = useMemo(
+    () => (player ? ovrBandForGroup(ovr, player.ageGroup, players, evaluations) : null),
+    [ovr, player, players, evaluations],
+  )
   // Snapshot for the confirmation sheet (avoid Firestore re-read flipping the "before" value)
   const displayLastOvr = saved ? savedFromOvr : lastOvr
   const ovrDelta = displayLastOvr !== null ? ovr - displayLastOvr : null
@@ -266,7 +273,7 @@ export default function EvaluateScreen({ playerId, players, evaluations, onBack,
 
             {/* Live OVR */}
             <div className="flex items-center gap-3 md:flex-col md:items-end md:gap-2">
-              <ScoreBadge value={ovr} tone="rated" size="lg" />
+              <ScoreBadge value={ovr} tone="rated" size="lg" band={ovrBand} />
               {ovrDelta !== null && ovrDelta !== 0 ? (
                 <TrendChip delta={ovrDelta} />
               ) : (
