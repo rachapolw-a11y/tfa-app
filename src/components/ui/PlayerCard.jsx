@@ -3,7 +3,7 @@ import { Badge } from './Badge.jsx'
 import { ScoreBadge } from './ScoreBadge.jsx'
 import { StatBar } from './StatBar.jsx'
 import { RadarChart } from './RadarChart.jsx'
-import { skillsToOvr, topSkills } from '../../lib/ratings'
+import { skillsToOvr, topSkills, calcAge } from '../../lib/ratings'
 
 /**
  * TFA PlayerCard — compact roster tile (matches the 5180 redesign).
@@ -52,6 +52,11 @@ export function PlayerCard({ player, evaluation, band, onClick }) {
               {player.ageGroup}{player.jersey ? ` · #${player.jersey}` : ''}
             </span>
           </div>
+          {player.dob && (
+            <div className="font-condensed uppercase text-[10px] tracking-[0.1em] text-faint mt-1">
+              DOB {new Date(player.dob).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} · age {calcAge(player.dob)}
+            </div>
+          )}
         </div>
         {skills ? <ScoreBadge value={ovr} tone="rated" size="md" band={band} /> : null}
       </div>

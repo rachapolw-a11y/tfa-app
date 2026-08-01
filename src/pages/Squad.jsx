@@ -20,6 +20,7 @@ import {
   squadAverages,
   latestEval,
   ovrBandForGroup,
+  calcAge,
 } from '../lib/ratings'
 
 const AGE_GROUPS = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18']
@@ -260,6 +261,11 @@ export default function Squad({ role = 'parent', onPlayerOpen }) {
                       </span>
                     ) : null}
                   </div>
+                  {featured.dob && (
+                    <div className="font-condensed uppercase text-[10.5px] tracking-[0.12em] text-faint mt-2">
+                      DOB {new Date(featured.dob).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} · age {calcAge(featured.dob)}
+                    </div>
+                  )}
                   <div className="mt-4">
                     <ScoreBadge value={featuredOvr} size="lg" tone="gold" />
                   </div>
