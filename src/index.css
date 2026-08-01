@@ -2,11 +2,249 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tottenham — uppercase-only display face. Hashed by Vite from src/assets/fonts/. */
+@font-face {
+  font-family: 'Tottenham';
+  src: url('./assets/fonts/Tottenham.otf') format('opentype');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   TFA Design System — CSS custom properties
+   Dark theme (coach app) by default; .theme-light for portal.
+   ============================================================ */
+:root {
+  /* Brand base */
+  --navy:        #070f1e;
+  --navy-mid:    #101c33;
+  --navy-soft:   #1a2942;
+  --navy-line:   #25375a;
+  --gold:        #f1b813;
+  --gold-light:  #f7cd54;
+  --gold-dark:   #c8960a;
+  --gold-dim:    #c8960a; /* legacy alias for older components */
+  --cream:       #f5f0e8;
+  --cream-dark:  #e7ddcc;
+  --cream-line:  #d8ccb6;
+  --white:       #ffffff;
+  --ink:         #0a1322;
+
+  /* Lead-funnel status */
+  --status-new:        #7286a0;
+  --status-trial:      #3b9ae1;
+  --status-attended:   #8b6fc9;
+  --status-offer:      #f1b813;
+  --status-paid:       #2ec18d;
+  --status-enrolled:   #1aa769;
+
+  /* Pitch positions */
+  --pos-gk:  #e0a92e;
+  --pos-def: #3b9ae1;
+  --pos-mid: #2ec18d;
+  --pos-fwd: #e25563;
+
+  /* Feedback */
+  --success: #2ec18d;
+  --warning: #f1b813;
+  --danger:  #e2493f;
+  --info:    #3b9ae1;
+
+  /* Skill rating scale 0–10 */
+  --rating-low:   #e2493f;  /* 0–3  red    */
+  --rating-mid:   #f97316;  /* 4–6  orange */
+  --rating-high:  #06b6d4;  /* 7–8  cyan   */
+  --rating-elite: #f1b813;  /* 9–10 gold   */
+
+  /* Semantic — dark theme (default) */
+  --bg-app:         var(--navy);
+  --surface:        var(--navy-mid);
+  --surface-2:      var(--navy-soft);
+  --border:         var(--navy-line);
+  --border-strong:  #34507e;
+  --text:           var(--cream);
+  --text-strong:    var(--white);
+  --text-muted:     #8fa1bd;
+  --text-faint:     #5d6f8c;
+  --accent:         var(--gold);
+  --accent-hover:   var(--gold-light);
+  --on-accent:      var(--navy);
+
+  /* Effects */
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   22px;
+  --radius-pill: 999px;
+  --shadow-sm:   0 1px 2px rgba(3,8,18,0.30);
+  --shadow-md:   0 6px 18px rgba(3,8,18,0.38);
+  --shadow-lg:   0 16px 40px rgba(3,8,18,0.48);
+  --shadow-card: 0 2px 10px rgba(3,8,18,0.28);
+  --shadow-light:0 4px 16px rgba(20,28,45,0.10);
+  --glow-gold:   0 4px 18px rgba(241,184,19,0.35);
+  --glow-gold-lg:0 6px 28px rgba(241,184,19,0.45);
+  --dur-fast: 120ms;
+  --dur:      200ms;
+  --dur-slow: 320ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Layout */
+  --header-h:   56px;
+  --tabbar-h:   64px;
+  --content-max: 1080px;
+}
+
+/* Light theme — parent portal */
+.theme-light {
+  --bg-app:        var(--cream);
+  --surface:       var(--white);
+  --surface-2:     var(--cream);
+  --border:        var(--cream-line);
+  --border-strong: var(--cream-dark);
+  --text:          var(--ink);
+  --text-strong:   var(--navy);
+  --text-muted:    #6b7384;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    /* Flat navy ground. The radial "stage-light" gradient lives on #root so it
+       spans the full viewport (matches the 5180 redesign — no centered shell). */
+    background-color: #070f1e;
+    color: var(--text);
+    font-family: 'Barlow', system-ui, sans-serif;
+    font-feature-settings: 'tnum' 1, 'kern' 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  #root {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(120% 80% at 50% -10%, #0e1a36 0%, #070f1e 60%, #03080f 100%);
+  }
+  ::selection {
+    background: rgba(241, 184, 19, 0.35);
+    color: #fff;
+  }
+}
+
 @layer components {
   .input {
     @apply w-full border border-white/20 bg-navy-light text-cream rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-shadow placeholder:text-cream/30;
   }
   .label {
-    @apply block text-sm font-medium text-cream/70 mb-1;
+    @apply block text-sm font-condensed font-semibold text-cream/60 mb-1 tracking-wide uppercase text-xs;
+  }
+  /* Design-system typography utilities */
+  .tfa-display {
+    font-family: 'Tottenham', 'Barlow Condensed', system-ui, sans-serif;
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+  .tfa-label {
+    font-family: 'Barlow Condensed', system-ui, sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Subtle diagonal "pitch-stripe" repeating-gradient — hero panels, empty states */
+  .tfa-pitch-stripes {
+    background-image: repeating-linear-gradient(
+      115deg,
+      transparent 0,
+      transparent 26px,
+      rgba(255, 255, 255, 0.022) 26px,
+      rgba(255, 255, 255, 0.022) 52px
+    );
+  }
+
+  /* Hero panel ground — navy gradient + warm gold spotlight */
+  .tfa-hero-gradient {
+    background:
+      radial-gradient(70% 110% at 16% 24%, rgba(241, 184, 19, 0.10), transparent 60%),
+      linear-gradient(140deg, #172c4e 0%, #0c1830 54%, #070f1e 100%);
+  }
+
+  /* Sticky chrome blur over translucent navy */
+  .tfa-blur-bar {
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    background: rgba(10, 18, 33, 0.82);
+  }
+
+  /* Pointy-top hexagon clip for player avatars */
+  .tfa-hex {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+
+  /* Hide horizontal scrollbar on pill rows / player pickers */
+  .tfa-scroll-x {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .tfa-scroll-x::-webkit-scrollbar {
+    display: none;
   }
 }
+
+/* Prevent radar axis labels from being clipped by SVG's default overflow:hidden */
+.pp-radar svg { overflow: visible; }
+
+/* Custom range styling for skill sliders (declared outside @layer so utility specificity is fine) */
+input[type='range'].tfa-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--gold) var(--val, 50%),
+    rgba(255, 255, 255, 0.08) var(--val, 50%)
+  );
+  border-radius: 999px;
+  outline: none;
+}
+input[type='range'].tfa-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--gold);
+  border: 2px solid #0a1322;
+  box-shadow: 0 0 0 3px rgba(241, 184, 19, 0.2), var(--glow-gold);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+input[type='range'].tfa-slider::-webkit-slider-thumb:active {
+  transform: scale(0.94);
+}
+input[type='range'].tfa-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--gold);
+  border: 2px solid #0a1322;
+  box-shadow: var(--glow-gold);
+  cursor: pointer;
+}
+
+/* iOS safe-area helpers */
+.pt-safe { padding-top: env(safe-area-inset-top); }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.pl-safe { padding-left: env(safe-area-inset-left); }
+.pr-safe { padding-right: env(safe-area-inset-right); }

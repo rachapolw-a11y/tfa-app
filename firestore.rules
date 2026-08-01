@@ -1,0 +1,138 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // KNOWN SERVER-SIDE AUTH GAP — see parentContext.jsx
+    //
+    // The parent surface is scoped UI-side via player editCode linking. These
+    // rules grant public read on players/sessions/evaluations/notices because
+    // there is no authenticated user identity to bind a Firestore-rule check
+    // to. A determined attacker can therefore query Firestore directly and
+    // bypass the UI scoping.
+    //
+    // To close this gap server-side, migrate to Firebase Auth (anonymous or
+    // phone) + a `parents/{uid}` doc holding the parent's permitted playerIds,
+    // and rewrite the read rules to require uid ∈ parents/{uid}.playerIds for
+    // playerId-bound reads. Tracked as the next auth task.
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // ── Players ──────────────────────────────────────────────────────────────
+    match /players/{playerId} {
+      allow read: if true;
+      allow create: if validPlayer(request.resource.data);
+      // Once a player has a parent editCode, it cannot be changed or removed
+      // (anti-hijack). Legacy players without one may have one set once.
+      allow update: if validPlayer(request.resource.data)
+        && (!resource.data.keys().hasAny(['editCode'])
+            || request.resource.data.editCode == resource.data.editCode);
+      allow delete: if true;
+    }
+
+    // ── Sessions ─────────────────────────────────────────────────────────────
+    match /sessions/{sessionId} {
+      allow read: if true;
+      allow create: if validSession(request.resource.data);
+      allow update: if validSession(request.resource.data);
+      allow delete: if true;
+    }
+
+    // ── Evaluations ──────────────────────────────────────────────────────────
+    // Immutable once created — app only deletes, never edits
+    match /evaluations/{evalId} {
+      allow read:   if true;
+      allow create: if validEvaluation(request.resource.data);
+      allow update: if validEvaluation(request.resource.data);
+      allow delete: if true;
+    }
+
+    // ── Notices (coach announcements) ────────────────────────────────────────
+    match /notices/{noticeId} {
+      allow read: if true;
+      allow create: if validNotice(request.resource.data);
+      allow delete: if true;
+    }
+
+    // ── Quests (coach-set, per player) ───────────────────────────────────────
+    match /quests/{questId} {
+      allow read:   if true;
+      allow create: if validQuest(request.resource.data);
+      allow update: if validQuest(request.resource.data);
+      allow delete: if true;
+    }
+
+    // ── Badges (one doc per player-badge unlock) ─────────────────────────────
+    match /badges/{badgeId} {
+      allow read:   if true;
+      allow create: if validBadge(request.resource.data);
+      allow delete: if true;
+    }
+
+    // ── Leads (enrollment pipeline) ──────────────────────────────────────────
+    match /leads/{leadId} {
+      allow read:   if true;
+      allow create: if validLead(request.resource.data);
+      allow update: if validLead(request.resource.data);
+      allow delete: if true;
+    }
+
+    // ── Block everything else ────────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ── Validation functions ─────────────────────────────────────────────────
+
+    function validPlayer(data) {
+      return data.keys().hasAll(['name', 'ageGroup', 'position', 'active'])
+        && data.name    is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.ageGroup in ['U8', 'U10', 'U12', 'U14', 'U16', 'U18']
+        && data.position in ['GK', 'DEF', 'MID', 'FWD']
+        && data.active  is bool
+        && (!data.keys().hasAny(['photoURL']) || data.photoURL is string)
+        && (!data.keys().hasAny(['editCode']) || data.editCode is string);
+    }
+
+    function validSession(data) {
+      return data.keys().hasAll(['date', 'ageGroup'])
+        && data.date     is string && data.date.size() == 10   // YYYY-MM-DD
+        && data.ageGroup in ['U8', 'U10', 'U12', 'U14', 'U16', 'U18'];
+    }
+
+    function validNotice(data) {
+      return data.keys().hasAll(['message', 'date'])
+        && data.message is string && data.message.size() > 0 && data.message.size() <= 280
+        && data.date    is string && data.date.size() == 10;
+    }
+
+    function validEvaluation(data) {
+      return data.keys().hasAll(['playerId', 'date', 'skills'])
+        && data.playerId is string && data.playerId.size() > 0
+        && data.date     is string && data.date.size() == 10
+        && data.skills   is map;
+    }
+
+    function validQuest(data) {
+      return data.keys().hasAll(['playerId', 'title', 'target', 'xp'])
+        && data.playerId is string && data.playerId.size() > 0
+        && data.title    is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.target   is number && data.target > 0
+        && data.xp       is number && data.xp >= 0
+        && (!data.keys().hasAny(['current']) || (data.current is number && data.current >= 0))
+        && (!data.keys().hasAny(['done'])    || data.done is bool)
+        && (!data.keys().hasAny(['setBy'])   || data.setBy is string);
+    }
+
+    function validBadge(data) {
+      return data.keys().hasAll(['playerId', 'badgeId'])
+        && data.playerId is string && data.playerId.size() > 0
+        && data.badgeId  is string && data.badgeId.size() > 0;
+    }
+
+    function validLead(data) {
+      return data.keys().hasAll(['name', 'stage'])
+        && data.name  is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.stage in ['new', 'trial', 'offer', 'paid'];
+    }
+  }
+}

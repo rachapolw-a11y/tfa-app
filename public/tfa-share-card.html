@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/tfa-design-system-8620e8e6-b85b-463c-828f-5b9336793872/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/tfa-design-system-8620e8e6-b85b-463c-828f-5b9336793872/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/tfa-design-system-8620e8e6-b85b-463c-828f-5b9336793872/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/tfa-design-system-8620e8e6-b85b-463c-828f-5b9336793872/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/tfa-design-system-8620e8e6-b85b-463c-828f-5b9336793872/tokens/effects.css">
+  <link rel="stylesheet" href="_ds/tfa-design-system-8620e8e6-b85b-463c-828f-5b9336793872/tokens/base.css">
+  <link rel="stylesheet" href="_ds/tfa-design-system-8620e8e6-b85b-463c-828f-5b9336793872/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    html, body { margin: 0; padding: 0; background: #050b16; }
+    :root {
+      --ca: #f1b813; --ca-light: #f7cd54; --ca-dark: #c8960a;
+      --glow-ca: 0 10px 34px rgba(241, 184, 19, 0.42);
+    }
+    .tier-silver  { --ca: #cdd6e4; --ca-light: #eef2f8; --ca-dark: #98a6bd; --glow-ca: 0 10px 34px rgba(205, 214, 228, 0.34); }
+    .tier-bronze  { --ca: #d0894f; --ca-light: #e8aa76; --ca-dark: #9c5c2c; --glow-ca: 0 10px 34px rgba(208, 137, 79, 0.40); }
+    .tier-special { --ca: #2ee0c1; --ca-light: #7eefd9; --ca-dark: #15a98e; --glow-ca: 0 10px 38px rgba(46, 224, 193, 0.42); }
+    .tfa-share-card image-slot { display: block; width: 100%; height: 100%; }
+  </style>
+</helmet>
+<div class="tfa-share-card {{ tierClass }}" data-screen-label="Share Card" style="width: 1080px; height: 1920px; box-sizing: border-box; position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 72px 64px 64px; background: radial-gradient(120% 80% at 50% -10%, #14233f 0%, #0a1424 45%, #070f1e 100%); color: var(--cream); font-family: var(--font-body);">
+
+  <div style="position: absolute; inset: 0; pointer-events: none; opacity: 0.5; background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 2px, transparent 2px, transparent 64px);"></div>
+  <div style="position: absolute; top: 280px; left: 50%; transform: translateX(-50%); width: 760px; height: 760px; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, color-mix(in oklab, var(--ca) 26%, transparent), transparent); filter: blur(20px);"></div>
+
+  <div style="position: relative; display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <img src="assets/tfa-logo.png" alt="TFA" style="width: 56px; height: auto; display: block;">
+      <div style="font-family: var(--font-condensed); font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; font-size: 21px; line-height: 1.05; color: var(--cream);">The Football<br>Academy</div>
+    </div>
+    <div style="font-family: var(--font-condensed); font-weight: 600; text-transform: uppercase; letter-spacing: 0.16em; font-size: 19px; color: var(--text-muted); border: 1px solid var(--border-strong); padding: 9px 18px; border-radius: 999px;">Season 2025/26</div>
+  </div>
+
+  <div style="position: relative; margin-top: 40px; height: 880px; border-radius: 34px; border: 3px solid var(--ca); box-shadow: var(--glow-ca), var(--shadow-lg); overflow: hidden; background: var(--navy-soft);">
+    <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="tfa-card-photo" src="assets/somchai.png" placeholder="Drop player photo" shape="rect" fit="cover" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block;" hint-size="100%,100%"></x-import>
+
+    <div style="position: absolute; inset: auto 0 0 0; height: 48%; pointer-events: none; background: linear-gradient(to top, rgba(7,15,30,0.96) 8%, rgba(7,15,30,0.55) 45%, transparent 100%);"></div>
+
+    <sc-if value="{{ gloss }}" hint-placeholder-val="{{ true }}">
+      <div style="position: absolute; inset: 0; pointer-events: none; background: linear-gradient(118deg, transparent 38%, rgba(255,255,255,0.16) 49%, rgba(255,255,255,0.04) 53%, transparent 62%);"></div>
+    </sc-if>
+
+    <div style="position: absolute; top: 28px; left: 28px; display: flex; flex-direction: column; align-items: center; line-height: 0.86; padding: 14px 22px 12px; border-radius: 20px; color: var(--navy); background: linear-gradient(158deg, var(--ca-light), var(--ca-dark)); box-shadow: 0 8px 22px rgba(0,0,0,0.42);">
+      <span style="font-family: var(--font-display); font-size: 76px;">8.0</span>
+      <span style="font-family: var(--font-condensed); font-weight: 700; letter-spacing: 0.24em; font-size: 17px; margin-top: 2px;">OVR</span>
+    </div>
+
+    <div style="position: absolute; top: 28px; right: 28px; display: flex; flex-direction: column; gap: 12px; align-items: flex-end;">
+      <span style="background: var(--pos-mid); color: #04130c; font-family: var(--font-condensed); font-weight: 700; letter-spacing: 0.14em; font-size: 25px; padding: 9px 20px; border-radius: 999px; box-shadow: 0 6px 16px rgba(0,0,0,0.35);">MID</span>
+      <span style="background: rgba(7,15,30,0.62); border: 1px solid var(--ca); color: var(--ca-light); font-family: var(--font-condensed); font-weight: 700; letter-spacing: 0.14em; font-size: 23px; padding: 8px 20px; border-radius: 999px; backdrop-filter: blur(6px);">U10</span>
+    </div>
+  </div>
+
+  <div style="position: relative; z-index: 3; margin-top: -44px; display: flex; justify-content: center;">
+    <div style="background: linear-gradient(158deg, var(--ca-light), var(--ca-dark)); color: var(--navy); font-family: var(--font-display); font-size: 60px; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; padding: 18px 52px; border-radius: 20px; box-shadow: var(--shadow-lg), var(--glow-ca); white-space: nowrap;">Leo Sáng</div>
+  </div>
+
+  <sc-if value="{{ showStars }}" hint-placeholder-val="{{ true }}">
+    <div style="display: flex; justify-content: center; gap: 18px; margin-top: 22px; color: var(--ca); font-size: 40px; line-height: 1; filter: drop-shadow(0 3px 8px rgba(241,184,19,0.4));">
+      <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
+    </div>
+  </sc-if>
+
+  <div style="display: flex; margin-top: 48px;">
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 30px; padding-right: 44px;">
+      <div style="display: flex; align-items: baseline; gap: 20px;"><span style="font-family: var(--font-display); font-size: 62px; color: var(--ca-light); min-width: 72px; text-align: right;">8</span><span style="font-family: var(--font-condensed); font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; font-size: 32px; color: var(--text-muted);">Pace</span></div>
+      <div style="display: flex; align-items: baseline; gap: 20px;"><span style="font-family: var(--font-display); font-size: 62px; color: var(--ca-light); min-width: 72px; text-align: right;">9</span><span style="font-family: var(--font-condensed); font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; font-size: 32px; color: var(--text-muted);">Passing</span></div>
+      <div style="display: flex; align-items: baseline; gap: 20px;"><span style="font-family: var(--font-display); font-size: 62px; color: var(--ca-light); min-width: 72px; text-align: right;">8</span><span style="font-family: var(--font-condensed); font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; font-size: 32px; color: var(--text-muted);">Dribbling</span></div>
+    </div>
+    <div style="width: 2px; background: linear-gradient(to bottom, transparent, var(--border-strong) 20%, var(--border-strong) 80%, transparent);"></div>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 30px; padding-left: 44px;">
+      <div style="display: flex; align-items: baseline; gap: 20px;"><span style="font-family: var(--font-display); font-size: 62px; color: var(--ca-light); min-width: 72px; text-align: right;">7</span><span style="font-family: var(--font-condensed); font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; font-size: 32px; color: var(--text-muted);">Shooting</span></div>
+      <div style="display: flex; align-items: baseline; gap: 20px;"><span style="font-family: var(--font-display); font-size: 62px; color: var(--ca-light); min-width: 72px; text-align: right;">7</span><span style="font-family: var(--font-condensed); font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; font-size: 32px; color: var(--text-muted);">Position</span></div>
+      <div style="display: flex; align-items: baseline; gap: 20px;"><span style="font-family: var(--font-display); font-size: 62px; color: var(--ca-light); min-width: 72px; text-align: right;">9</span><span style="font-family: var(--font-condensed); font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; font-size: 32px; color: var(--text-muted);">Attitude</span></div>
+    </div>
+  </div>
+
+  <div style="margin-top: auto; display: flex; flex-direction: column; gap: 18px;">
+    <div style="height: 1px; background: var(--border-strong);"></div>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <div style="font-family: var(--font-condensed); font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); font-size: 24px;">12 Sessions &nbsp;&bull;&nbsp; Class of U10</div>
+      <div style="font-family: var(--font-condensed); font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ca); font-size: 24px;">#TFA</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1080, &quot;height&quot;: 1920 },
+  &quot;tier&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;gold&quot;, &quot;silver&quot;, &quot;bronze&quot;, &quot;special&quot;], &quot;default&quot;: &quot;gold&quot;, &quot;tsType&quot;: &quot;string&quot; },
+  &quot;gloss&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; },
+  &quot;showStars&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot; }
+}">
+class Component extends DCLogic {
+  renderVals() {
+    const tier = this.props.tier || 'gold';
+    return {
+      tierClass: 'tier-' + tier,
+      gloss: this.props.gloss ?? true,
+      showStars: this.props.showStars ?? true,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(firebase deploy *)",
+      "Bash(npx firebase-tools *)",
+      "Bash(npm install *)",
+      "Bash(cp '/Users/rachapol/Documents/TFA/Logo brand color update/assets/tfa-logo.png' '/Users/rachapol/Documents/TFA/TFA-app/public/tfa-logo.png')",
+      "Bash(cp '/Users/rachapol/Documents/TFA/Logo brand color update/assets/tfa-logo.png' '/Users/rachapol/Documents/TFA/TFA-app/src/assets/tfa-logo.png')"
+    ]
+  }
+}

@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Vite temp config files
+vite.config.js.timestamp-*.mjs
+
+# Firebase deploy cache
+.firebase/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
