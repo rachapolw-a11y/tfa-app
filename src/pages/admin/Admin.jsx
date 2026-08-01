@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { subscribeTo, updatePlayer, makeEditCode, convertLeadToPlayer } from '../../lib/storage'
 import { Button } from '../../components/ui'
 import Modal from '../../components/Modal'
+import { calcAge } from '../../lib/ratings'
 import { Bell, KeyRound, Copy, Check, Link2, ChevronRight, UserPlus } from 'lucide-react'
 
 function useAdminData() {
@@ -401,6 +402,11 @@ function ParentCodesSheet({ players, onClose }) {
                     <div className="font-body text-sm text-cream truncate">{p.name}</div>
                     <div className="font-condensed font-bold uppercase tracking-[0.06em] text-[10px] text-muted">
                       {p.ageGroup} · {p.position}{p.active ? '' : ' · inactive'}
+                    </div>
+                    <div className="font-condensed font-bold uppercase tracking-[0.06em] text-[10px] text-faint mt-0.5">
+                      {p.dob
+                        ? `DOB ${new Date(p.dob).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} · age ${calcAge(p.dob)}`
+                        : 'DOB not set'}
                     </div>
                     {hasCode && (
                       <div className="font-display font-bold tracking-[0.2em] text-gold text-sm mt-1 truncate">
