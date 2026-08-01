@@ -46,6 +46,7 @@ const ROLE_TABS = {
   ],
   admin: [
     { id: 'dash',     label: 'Dash',     Icon: BarChart3 },
+    { id: 'squad',    label: 'Squad',    Icon: Users },
     { id: 'leads',    label: 'Leads',    Icon: Megaphone },
     { id: 'payments', label: 'Pay',      Icon: CreditCard },
     { id: 'more',     label: 'More',     Icon: MoreHorizontal },
@@ -148,6 +149,7 @@ function Shell({ role, onSwitchRole }) {
     }
     if (role === 'admin') {
       if (tab === 'dash')     return <AdminDash onOpenLeads={() => setTab('leads')} />
+      if (tab === 'squad')    return <Squad role="admin" onPlayerOpen={openPlayer} />
       if (tab === 'leads')    return <Leads role="coach" />
       if (tab === 'payments') return <AdminPayments />
       if (tab === 'more')     return <More role="coach" isCoach onCoachToggle={onSwitchRole} />
@@ -175,7 +177,7 @@ function Shell({ role, onSwitchRole }) {
               sessions={sessions}
               onBack={goBack}
               onEvaluate={openEvaluate}
-              role="coach"
+              role={role}
             />
           </div>
         )}
@@ -187,7 +189,7 @@ function Shell({ role, onSwitchRole }) {
               evaluations={evaluations}
               onBack={goBack}
               onSaved={handleEvalSaved}
-              role="coach"
+              role={role}
             />
           </div>
         )}

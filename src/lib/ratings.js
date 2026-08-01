@@ -217,6 +217,21 @@ export function positionColor(position) {
 }
 
 /**
+ * Date of birth (YYYY-MM-DD or any Date-parsable string) → age in whole years.
+ * Returns null if `dob` is missing or unparseable.
+ */
+export function calcAge(dob) {
+  if (!dob) return null
+  const birth = new Date(dob)
+  if (Number.isNaN(birth.getTime())) return null
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) age--
+  return age
+}
+
+/**
  * "Somchai Prasert" → "SP". Up to two letters, uppercase.
  */
 export function initials(name = '') {

@@ -32,7 +32,7 @@ const EMPTY = {
 }
 
 export default function Squad({ role = 'parent', onPlayerOpen }) {
-  const isCoach = role === 'coach'
+  const isCoach = role === 'coach' || role === 'admin'
 
   const [players,      setPlayers]      = useState([])
   const [evaluations,  setEvaluations]  = useState([])

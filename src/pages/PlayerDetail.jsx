@@ -17,6 +17,8 @@ import {
   Pencil,
   Check,
   X,
+  Phone,
+  Cake,
 } from 'lucide-react'
 import { updatePlayer } from '../lib/storage'
 import {
@@ -32,6 +34,7 @@ import {
   skillsToOvr,
   playerEvals as playerEvalsAsc,
   ovrTrend,
+  calcAge,
   SKILL_ORDER,
   SKILL_LABELS,
 } from '../lib/ratings'
@@ -66,6 +69,7 @@ export default function PlayerDetail({
   role,
 }) {
   const isCoach = role === 'coach'
+  const isStaff = role === 'coach' || role === 'admin'
   const player = players.find(p => p.id === playerId)
 
   const evals = useMemo(
@@ -215,6 +219,13 @@ export default function PlayerDetail({
       <div className="px-4 md:px-6 pt-5">
         <CoachNotePanel player={player} isCoach={isCoach} />
       </div>
+
+      {/* ── Personal & contact info (staff-only: coach + admin) ── */}
+      {isStaff && (
+        <div className="px-4 md:px-6 pt-5">
+          <PersonalInfoPanel player={player} />
+        </div>
+      )}
 
       {/* ── OVR trend card ── */}
       {trend.length > 1 && (
@@ -443,6 +454,155 @@ function CoachNotePanel({ player, isCoach }) {
           className="w-full h-10 px-3 rounded-md bg-navy-soft border border-white/[0.1] text-cream font-body text-sm focus:outline-none focus:border-gold"
         />
       </label>
+
+      <div className="flex gap-2 mt-4">
+        <Button
+          variant="secondary"
+          block
+          leftIcon={<X size={14} strokeWidth={2.2} />}
+          onClick={cancel}
+          disabled={saving}
+        >
+          Cancel
+        </Button>
+        <Button
+          block
+          leftIcon={<Check size={14} strokeWidth={2.4} />}
+          onClick={save}
+          disabled={saving}
+        >
+          {saving ? 'Saving…' : 'Save'}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// ── Personal & contact info panel (coach + admin only) ─────────────────────
+// Surfaces the fields captured at enrollment (dob, parentPhone) that were
+// previously write-only — entered on the Add Player form but never shown
+// anywhere afterward. Never rendered for the parent role or on the public
+// PlayerPortal share link.
+function PersonalInfoPanel({ player }) {
+  const [editing, setEditing] = useState(false)
+  const [dob,     setDob]     = useState(player.dob         || '')
+  const [phone,   setPhone]   = useState(player.parentPhone || '')
+  const [saving,  setSaving]  = useState(false)
+
+  useEffect(() => {
+    if (!editing) {
+      setDob(player.dob || '')
+      setPhone(player.parentPhone || '')
+    }
+  }, [player.dob, player.parentPhone, editing])
+
+  async function save() {
+    setSaving(true)
+    try {
+      await updatePlayer(player.id, { dob: dob || null, parentPhone: phone.trim() })
+      setEditing(false)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function cancel() {
+    setDob(player.dob || '')
+    setPhone(player.parentPhone || '')
+    setEditing(false)
+  }
+
+  const age = calcAge(player.dob)
+  const dobLabel = player.dob
+    ? new Date(player.dob).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    : null
+
+  // Read-only view.
+  if (!editing) {
+    return (
+      <div className="bg-navy-mid/85 border border-white/[0.06] rounded-lg p-5 shadow-card">
+        <div className="flex items-start justify-between gap-3">
+          <div className="font-condensed uppercase tracking-[0.18em] text-[10.5px] text-muted">
+            Personal info · staff only
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            leftIcon={<Pencil size={13} strokeWidth={2.2} />}
+            onClick={() => setEditing(true)}
+          >
+            Edit
+          </Button>
+        </div>
+
+        <div className="mt-3.5 grid grid-cols-2 gap-4">
+          <div>
+            <div className="flex items-center gap-1.5 font-condensed uppercase tracking-[0.14em] text-[10px] text-muted mb-1.5">
+              <Cake size={12} strokeWidth={2.2} />
+              Date of birth
+            </div>
+            {dobLabel ? (
+              <div className="font-body text-sm text-cream/90">
+                {dobLabel}
+                <span className="text-faint"> · age {age}</span>
+              </div>
+            ) : (
+              <div className="font-body text-sm text-faint italic">Not set</div>
+            )}
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5 font-condensed uppercase tracking-[0.14em] text-[10px] text-muted mb-1.5">
+              <Phone size={12} strokeWidth={2.2} />
+              Parent phone
+            </div>
+            {player.parentPhone ? (
+              <a
+                href={`tel:${player.parentPhone}`}
+                className="font-body text-sm text-gold hover:underline"
+              >
+                {player.parentPhone}
+              </a>
+            ) : (
+              <div className="font-body text-sm text-faint italic">Not set</div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Edit mode (coach or admin).
+  return (
+    <div className="bg-navy-mid/85 border border-gold/40 rounded-lg p-5 shadow-card">
+      <div className="font-condensed uppercase tracking-[0.18em] text-[10.5px] text-gold">
+        Edit personal info
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        <label className="block">
+          <div className="font-condensed uppercase tracking-[0.14em] text-[10px] text-muted mb-1.5">
+            Date of birth
+          </div>
+          <input
+            type="date"
+            value={dob}
+            onChange={e => setDob(e.target.value)}
+            className="w-full h-10 px-3 rounded-md bg-navy-soft border border-white/[0.1] text-cream font-body text-sm focus:outline-none focus:border-gold"
+          />
+        </label>
+        <label className="block">
+          <div className="font-condensed uppercase tracking-[0.14em] text-[10px] text-muted mb-1.5">
+            Parent phone
+          </div>
+          <input
+            type="tel"
+            value={phone}
+            onChange={e => setPhone(e.target.value)}
+            placeholder="08X-XXX-XXXX"
+            className="w-full h-10 px-3 rounded-md bg-navy-soft border border-white/[0.1] text-cream font-body text-sm focus:outline-none focus:border-gold"
+          />
+        </label>
+      </div>
 
       <div className="flex gap-2 mt-4">
         <Button
