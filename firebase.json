@@ -5,17 +5,17 @@
     "rewrites": [{ "source": "**", "destination": "/index.html" }],
     "headers": [
       {
-        "comment": "Vite fingerprints these, so they can be cached forever.",
-        "source": "/assets/**",
-        "headers": [
-          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-        ]
-      },
-      {
-        "comment": "Everything else (above all index.html) must revalidate — a stale index.html pins users to the previous build's hashed assets. Firebase's default max-age=3600 made each deploy invisible for up to an hour.",
+        "comment": "Default: revalidate. Above all this covers index.html — a stale index.html pins users to the previous build's hashed assets, and Firebase's default max-age=3600 made each deploy invisible for up to an hour. Listed first because later matching rules win.",
         "source": "**",
         "headers": [
           { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
+        ]
+      },
+      {
+        "comment": "Vite fingerprints these filenames, so a given URL's bytes never change and it can be cached forever. Must stay after the ** rule to override it.",
+        "source": "/assets/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
         ]
       }
     ]
