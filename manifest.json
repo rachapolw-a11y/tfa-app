@@ -2,21 +2,21 @@
   "name": "The Football Academy",
   "short_name": "TFA",
   "description": "Coach and player management for The Football Academy",
-  "start_url": "/tfa-app/",
-  "scope": "/tfa-app/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#070f1e",
   "background_color": "#070f1e",
   "icons": [
     {
-      "src": "/tfa-app/icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/tfa-app/icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
