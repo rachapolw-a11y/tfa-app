@@ -9,7 +9,7 @@ export const ROLE_LABEL = {
 export const ROLE_TAGLINE = {
   parent: 'Your child’s development · daily',
   coach:  'Today · squad · evaluations',
-  admin:  'Revenue · leads · payments',
+  admin:  'Roster · leads · access codes',
 }
 
 export const ROLE_SUBTITLE = {

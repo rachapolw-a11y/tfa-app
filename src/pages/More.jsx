@@ -8,7 +8,6 @@ import {
   X,
   CalendarDays,
   Users,
-  CreditCard,
   MessageCircle,
   Settings,
   Megaphone,
@@ -18,7 +17,6 @@ import { Button } from '../components/ui'
 const MENU_ITEMS = [
   { icon: CalendarDays,   label: 'Schedule',   sub: 'Sessions & match days' },
   { icon: Users,          label: 'Attendance', sub: 'Today · U12 · 14 kids' },
-  { icon: CreditCard,     label: 'Payments',   sub: 'PromptPay · 3 due'     },
   { icon: MessageCircle,  label: 'Messages',   sub: 'LINE · parents'        },
   { icon: Settings,       label: 'Settings',   sub: 'Academy & account'     },
 ]

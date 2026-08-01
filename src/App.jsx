@@ -9,7 +9,6 @@ import { loadRole, saveRole, ROLE_SUBTITLE } from './lib/roles'
 import {
   Home, Users, TrendingUp, Megaphone, MoreHorizontal,
   Image as ImageIcon, ClipboardList, BarChart3,
-  CreditCard,
 } from 'lucide-react'
 
 // Coach pages — existing
@@ -23,7 +22,7 @@ import More           from './pages/More'
 
 // Role-first pages
 import { ParentHome, ParentProgress, ParentPhotos, ParentMore } from './pages/parent/Parent'
-import { AdminDash, AdminPayments }                              from './pages/admin/Admin'
+import { AdminDash }                                             from './pages/admin/Admin'
 
 const PlayerPortal = lazy(() => import('./pages/PlayerPortal'))
 
@@ -49,7 +48,6 @@ const ROLE_TABS = {
     { id: 'dash',     label: 'Dash',     Icon: BarChart3 },
     { id: 'squad',    label: 'Squad',    Icon: Users },
     { id: 'leads',    label: 'Leads',    Icon: Megaphone },
-    { id: 'payments', label: 'Pay',      Icon: CreditCard },
     { id: 'more',     label: 'More',     Icon: MoreHorizontal },
   ],
 }
@@ -156,7 +154,6 @@ function Shell({ role, onSwitchRole }) {
       if (tab === 'dash')     return <AdminDash onOpenLeads={() => setTab('leads')} />
       if (tab === 'squad')    return <Squad role="admin" onPlayerOpen={openPlayer} />
       if (tab === 'leads')    return <Leads role="coach" />
-      if (tab === 'payments') return <AdminPayments />
       if (tab === 'more')     return <More role="coach" isCoach onCoachToggle={onSwitchRole} />
     }
     return null

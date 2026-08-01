@@ -3,7 +3,7 @@ import { subscribeTo, updatePlayer, makeEditCode, convertLeadToPlayer } from '..
 import { Button } from '../../components/ui'
 import Modal from '../../components/Modal'
 import { calcAge } from '../../lib/ratings'
-import { Bell, KeyRound, Copy, Check, Link2, ChevronRight, UserPlus } from 'lucide-react'
+import { KeyRound, Copy, Check, Link2, ChevronRight, UserPlus } from 'lucide-react'
 
 function useAdminData() {
   const [players, setPlayers] = useState([])
@@ -74,24 +74,11 @@ export function AdminDash({ onOpenLeads }) {
         </span>
       </div>
 
-      {/* revenue hero */}
-      <div className="rounded-2xl p-4 border border-gold/30"
-           style={{ background: 'linear-gradient(160deg,#16284a,#0a1322)' }}>
-        <div className="font-condensed font-bold uppercase tracking-[0.14em] text-[10px] text-gold">
-          Revenue · {monthName()}
-        </div>
-        <div className="flex items-baseline gap-2 mt-1.5">
-          <span className="font-display font-bold text-cream text-[42px] leading-[0.7]">
-            ฿{(enrolled * 3800).toLocaleString()}
-          </span>
-          <span className="font-display font-bold text-emerald-400 text-base">▲ 9%</span>
-        </div>
-      </div>
-
-      {/* tiles */}
+      {/* tiles — finances (revenue, fees due, payment reminders) are handled
+          outside this app, so nothing here reports money. */}
       <div className="grid grid-cols-2 gap-2.5">
         <Tile label="Enrolled" value={enrolled} valueClass="text-cream" />
-        <Tile label="Fees due" value={`฿${(7500).toLocaleString()}`} valueClass="text-gold" />
+        <Tile label="Active leads" value={activeLeads} valueClass="text-gold" />
       </div>
 
       {/* lead funnel */}
@@ -115,19 +102,6 @@ export function AdminDash({ onOpenLeads }) {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* reminder */}
-      <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-2xl border border-gold/30 bg-gold/[0.08]">
-        <div className="flex-1">
-          <div className="font-display font-bold uppercase text-cream text-base leading-tight">
-            3 payments pending
-          </div>
-          <div className="font-condensed font-bold uppercase tracking-[0.06em] text-[10px] text-muted mt-0.5">
-            PromptPay · send reminders
-          </div>
-        </div>
-        <Button variant="primary" size="sm">Remind</Button>
       </div>
 
       {/* new enrollments — inline generate-code list */}
@@ -474,52 +448,4 @@ function ActionPill({ Icon, label, onClick }) {
       <span>{label}</span>
     </button>
   )
-}
-
-// ── ADMIN · PAYMENTS (scaffold) ───────────────────────────────────────────────
-
-export function AdminPayments() {
-  const { players } = useAdminData()
-  const pending = players.filter(p => p.active).slice(0, 5)
-
-  return (
-    <div className="px-4 md:px-6 pt-3 pb-6 flex flex-col gap-3.5">
-      <div className="font-display font-bold uppercase text-cream text-[28px]" style={{ lineHeight: 0.85 }}>
-        Payments
-      </div>
-
-      <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4">
-        <div className="font-condensed font-bold uppercase tracking-[0.14em] text-[10px] text-gold">June term</div>
-        <div className="flex items-baseline gap-2 mt-1.5">
-          <span className="font-display font-bold text-cream text-[36px] leading-[0.7]">฿{(pending.length * 2500).toLocaleString()}</span>
-          <span className="font-condensed font-bold uppercase tracking-[0.06em] text-[10px] text-muted">outstanding</span>
-        </div>
-      </div>
-
-      <div className="font-condensed font-bold uppercase tracking-[0.14em] text-[10.5px] text-muted">
-        Pending · {pending.length}
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        {pending.map(p => (
-          <div key={p.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-            <div className="flex-1 min-w-0">
-              <div className="font-body text-sm text-cream truncate">{p.name}</div>
-              <div className="font-condensed font-bold uppercase tracking-[0.06em] text-[10px] text-muted">
-                {p.ageGroup} · due 30 Jun
-              </div>
-            </div>
-            <span className="font-display font-bold text-gold text-base">฿2,500</span>
-            <button type="button" className="w-8 h-8 rounded-full border border-gold/40 flex items-center justify-center">
-              <Bell size={14} className="text-gold" />
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function monthName() {
-  return new Date().toLocaleString('en-US', { month: 'long' })
 }
